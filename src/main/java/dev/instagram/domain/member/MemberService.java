@@ -1,11 +1,12 @@
 package dev.instagram.domain.member;
 
+import dev.instagram.web.MemberLoginDto;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.Optional;
+import java.util.Objects;
 
 @Service
 @RequiredArgsConstructor
@@ -17,21 +18,36 @@ public class MemberService {
 
     @Transactional
     public Member registerMember(Member member) throws Exception {
-        Member validateMember = validateMember(member);
+        Member validateMember = validateDuplicatedMember(member);
         String rawPassword = validateMember.getPassword();
         String bCryptPassword = bCryptPasswordEncoder.encode(rawPassword);
         validateMember.setPassword(bCryptPassword);
-
         memberRepository.save(validateMember);
         return validateMember;
     }
 
-    public Member validateMember(Member member) throws Exception {
+    public Member validateDuplicatedMember(Member member) throws Exception {
         boolean checkEmail = memberRepository.existsByEmail(member.getEmail());
         if (checkEmail) {
-            throw new Exception("중복된 아이디 입니다.");
+            throw new Exception("중복된 아이디입니다.");
         }
         return member;
     }
 
+    @Transactional
+    public Member LoginMember(MemberLoginDto memberLoginDto) throws Exception {
+        Member member = validateLoginMember(memberLoginDto);
+        return member;
+    }
+
+    public Member validateLoginMember(MemberLoginDto memberLoginDto) throws Exception {
+        Member member = memberRepository.findByEmail(memberLoginDto.getEmail());
+        if (member == null) {
+            throw new Exception("해당하는 아이디가 없습니다.");
+        }
+        if (!Objects.equals(member.getPassword(), memberLoginDto.getPassword())) {
+            throw new Exception("비밀번호가 일치하지 않습니다.");
+        }
+        return member;
+    }
 }
