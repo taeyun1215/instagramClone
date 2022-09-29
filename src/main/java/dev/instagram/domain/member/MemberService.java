@@ -1,6 +1,7 @@
 package dev.instagram.domain.member;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -12,12 +13,16 @@ import java.util.Optional;
 public class MemberService {
 
     private final MemberRepository memberRepository;
+    private final BCryptPasswordEncoder bCryptPasswordEncoder;
 
     @Transactional
     public Member registerMember(Member member) throws Exception {
         Member validateMember = validateMember(member);
-        memberRepository.save(validateMember);
+        String rawPassword = validateMember.getPassword();
+        String bCryptPassword = bCryptPasswordEncoder.encode(rawPassword);
+        validateMember.setPassword(bCryptPassword);
 
+        memberRepository.save(validateMember);
         return validateMember;
     }
 

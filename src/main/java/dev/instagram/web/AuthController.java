@@ -1,6 +1,5 @@
 package dev.instagram.web;
 
-import dev.instagram.domain.member.Member;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Controller;
@@ -12,16 +11,15 @@ import org.springframework.web.bind.annotation.RequestBody;
 @Controller
 @Slf4j
 public class AuthController {
-
     private final AuthService authService;
 
-    @GetMapping({"/login" , "/"})
-    public String LoginForm(){
+    @GetMapping("/login")
+    public String LoginForm() {
         return "login";
     }
 
     @GetMapping("/signup")
-    public String SignupForm(){
+    public String SignupForm() {
         return "signup";
     }
 
