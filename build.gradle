@@ -35,7 +35,7 @@ dependencies {
 	testImplementation 'org.springframework.security:spring-security-test'
 
 	implementation group: 'org.mariadb.jdbc', name: 'mariadb-java-client', version: '2.4.1'
-
+	implementation group: 'io.jsonwebtoken', name: 'jjwt', version: '0.9.1'
 }
 
 tasks.named('test') {

@@ -2,11 +2,10 @@ package dev.instagram.domain.member;
 
 import dev.instagram.web.MemberLoginDto;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
-import java.util.Objects;
 
 @Service
 @RequiredArgsConstructor
@@ -19,9 +18,6 @@ public class MemberService {
     @Transactional
     public Member registerMember(Member member) throws Exception {
         Member validateMember = validateDuplicatedMember(member);
-        String rawPassword = validateMember.getPassword();
-        String bCryptPassword = bCryptPasswordEncoder.encode(rawPassword);
-        validateMember.setPassword(bCryptPassword);
         memberRepository.save(validateMember);
         return validateMember;
     }
@@ -45,7 +41,7 @@ public class MemberService {
         if (member == null) {
             throw new Exception("해당하는 아이디가 없습니다.");
         }
-        if (!Objects.equals(member.getPassword(), memberLoginDto.getPassword())) {
+        if (!bCryptPasswordEncoder.matches(memberLoginDto.getPassword(), member.getPassword())) {
             throw new Exception("비밀번호가 일치하지 않습니다.");
         }
         return member;

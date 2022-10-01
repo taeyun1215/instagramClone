@@ -10,8 +10,19 @@ import java.util.Objects;
 
 @RequiredArgsConstructor
 @Controller
-public class SignupController {
-    private final SingupService singUpService;
+public class UserController {
+    private final UserService userService;
+
+    @GetMapping("/login")
+    public String LoginForm() {
+        return "login";
+    }
+
+    @PostMapping("/login")
+    public String Login(@RequestBody MemberLoginDto memberLoginDto) throws Exception {
+        userService.login(memberLoginDto);
+        return "";
+    }
 
     @GetMapping("/signup")
     public String SignupForm() {
@@ -24,8 +35,7 @@ public class SignupController {
             throw new Exception("비밀번호와 비밀번호 확인이 같지 않습니다.");
         }
 
-        singUpService.signup(memberSignUpDto);
-
+        userService.signup(memberSignUpDto);
         return "login";
     }
 
