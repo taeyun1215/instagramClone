@@ -6,15 +6,15 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
-import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.stereotype.Component;
 
 import javax.annotation.PostConstruct;
 import java.security.SignatureException;
 import java.util.Base64;
-import java.util.Collection;
 import java.util.Date;
+import java.util.stream.Collectors;
 
 @Component
 @RequiredArgsConstructor
@@ -26,9 +26,10 @@ public class JwtTokenProvider {	// JWT토큰 생성 및 유효성을 검증하�
     @Value("spring.jwt.secret")
     private String SECRET_KEY;
 
+    private static final String AUTHORITIES_KEY = "auth";
+
     private long tokenValidMilisecond = 1000L * 60 * 60; // 1시간만 토큰 유효
 
-    private final UserDetailsService userDetailsService;
     private static final Logger logger = LoggerFactory.getLogger(JwtTokenProvider.class);
 
     @PostConstruct
@@ -37,15 +38,19 @@ public class JwtTokenProvider {	// JWT토큰 생성 및 유효성을 검증하�
     }
 
     // Jwt 토큰 생성
-    public String createToken(String userPk, Collection<? extends GrantedAuthority> roles) {
-        Claims claims = Jwts.claims().setSubject(userPk);
-        claims.put("roles", roles);
+    public String createToken(Authentication authentication) {
+
         Date now = new Date();
+
+        String authorities = authentication.getAuthorities().stream()
+                .map(GrantedAuthority::getAuthority)
+                .collect(Collectors.joining(","));
+
         return Jwts.builder()
-                .setClaims(claims) // 데이터
-                .setIssuedAt(now) // 토큰 발행일자
-                .setExpiration(new Date(now.getTime() + tokenValidMilisecond)) // set Expire Time
-                .signWith(SignatureAlgorithm.HS256, SECRET_KEY) // 암호화 알고리즘, secret값 세팅
+                .setSubject(authentication.getName())
+                .claim(AUTHORITIES_KEY, authorities)
+                .signWith(SignatureAlgorithm.HS256, SECRET_KEY)  // 암호화 알고리즘, secret값 세팅
+                .setExpiration(new Date(now.getTime() + tokenValidMilisecond))
                 .compact();
     }
 
