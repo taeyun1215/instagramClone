@@ -1,5 +1,6 @@
-package dev.instagram.config;
+package dev.instagram.JWT;
 
+import dev.instagram.config.CustomUserDetailService;
 import io.jsonwebtoken.*;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
@@ -23,8 +24,7 @@ public class JwtTokenProvider {	// JWT토큰 생성 및 유효성을 검증하�
     @Autowired
     private CustomUserDetailService customUserDetailService;
 
-    @Value("spring.jwt.secret")
-    private String SECRET_KEY;
+    private String SECRET_KEY = "secret";
 
     private static final String AUTHORITIES_KEY = "auth";
 

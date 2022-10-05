@@ -11,7 +11,7 @@ import java.util.List;
 
 public class UserDetailsImpl implements UserDetails {
     private final Member member;
-    private final List<GrantedAuthority> authorities = new ArrayList<>();   // 계정 권한
+    private final List<GrantedAuthority> authorities = new ArrayList<>();
 
     public UserDetailsImpl(Member member) {
         this.member = member;

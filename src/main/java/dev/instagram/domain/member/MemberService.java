@@ -1,8 +1,8 @@
 package dev.instagram.domain.member;
 
+import dev.instagram.JWT.JwtTokenProvider;
 import dev.instagram.web.MemberLoginDto;
 import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -14,6 +14,7 @@ public class MemberService {
 
     private final MemberRepository memberRepository;
     private final BCryptPasswordEncoder bCryptPasswordEncoder;
+    private final JwtTokenProvider jwtTokenProvider;
 
     @Transactional
     public Member registerMember(Member member) throws Exception {
