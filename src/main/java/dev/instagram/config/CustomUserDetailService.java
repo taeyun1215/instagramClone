@@ -20,7 +20,7 @@ public class CustomUserDetailService implements UserDetailsService {
         if (member == null) {
             throw new UsernameNotFoundException("해당 아이디가 없습니다.");
         } else {
-            return new UserDetailsImpl(member);
+            return new member;
         }
     }
 }

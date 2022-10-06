@@ -1,77 +1,84 @@
 package dev.instagram.JWT;
 
-import dev.instagram.config.CustomUserDetailService;
 import io.jsonwebtoken.*;
-import lombok.RequiredArgsConstructor;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
+
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.core.userdetails.User;
 import org.springframework.stereotype.Component;
 
-import javax.annotation.PostConstruct;
-import java.security.SignatureException;
-import java.util.Base64;
+import java.security.Key;
+import java.util.Arrays;
+import java.util.Collection;
 import java.util.Date;
 import java.util.stream.Collectors;
 
+@Slf4j
 @Component
-@RequiredArgsConstructor
-public class JwtTokenProvider {	// JWT토큰 생성 및 유효성을 검증하는 컴포넌트
-
-    @Autowired
-    private CustomUserDetailService customUserDetailService;
-
-    private String SECRET_KEY = "secret";
+public class JwtTokenProvider {
 
     private static final String AUTHORITIES_KEY = "auth";
+    private String SECRET_KEY = "secret";
+    private final long tokenValidityInMilliseconds;
+    private Key key;
 
-    private long tokenValidMilisecond = 1000L * 60 * 60; // 1시간만 토큰 유효
-
-    private static final Logger logger = LoggerFactory.getLogger(JwtTokenProvider.class);
-
-    @PostConstruct
-    protected void init() {
-        SECRET_KEY = Base64.getEncoder().encodeToString(SECRET_KEY.getBytes());
+    public JwtTokenProvider(
+            @Value("${jwt.token-validity-in-seconds}") long tokenValidityInSeconds
+    ) {
+        this.tokenValidityInMilliseconds = tokenValidityInSeconds * 1000;
     }
 
-    // Jwt 토큰 생성
     public String createToken(Authentication authentication) {
-
-        Date now = new Date();
-
         String authorities = authentication.getAuthorities().stream()
                 .map(GrantedAuthority::getAuthority)
                 .collect(Collectors.joining(","));
 
+        long now = (new Date()).getTime();
+        Date validity = new Date(now + this.tokenValidityInMilliseconds);
+
         return Jwts.builder()
                 .setSubject(authentication.getName())
                 .claim(AUTHORITIES_KEY, authorities)
-                .signWith(SignatureAlgorithm.HS256, SECRET_KEY)  // 암호화 알고리즘, secret값 세팅
-                .setExpiration(new Date(now.getTime() + tokenValidMilisecond))
+                .signWith(SignatureAlgorithm.HS256, SECRET_KEY)
+                .setExpiration(validity)
                 .compact();
     }
 
-    public String getUserNameFromJwtToken(String token) {
-        return Jwts.parser().setSigningKey(SECRET_KEY).parseClaimsJws(token).getBody().getSubject();
+    public Authentication getAuthentication(String token) {
+        Claims claims = Jwts
+                .parser()
+                .setSigningKey(SECRET_KEY)
+                .parseClaimsJws(token)
+                .getBody();
+
+        Collection<? extends GrantedAuthority> authorities =
+                Arrays.stream(claims.get(AUTHORITIES_KEY).toString().split(","))
+                        .map(SimpleGrantedAuthority::new)
+                        .collect(Collectors.toList());
+
+        User principal = new User(claims.getSubject(), "", authorities);
+
+        return new UsernamePasswordAuthenticationToken(principal, token, authorities);
     }
 
-    public boolean validateJwtToken(String authToken) throws SignatureException {
+    public boolean validateToken(String token) {
         try {
-            Jwts.parser().setSigningKey(SECRET_KEY).parseClaimsJws(authToken);
+            Jwts.parser().setSigningKey(SECRET_KEY).parseClaimsJws(token);
             return true;
         } catch (MalformedJwtException e) {
-            logger.error("Invalid JWT token: {}", e.getMessage());
+            log.error("Invalid JWT token: {}", e.getMessage());
         } catch (ExpiredJwtException e) {
-            logger.error("JWT token is expired: {}", e.getMessage());
+            log.info("만료된 JWT 토큰입니다.");
         } catch (UnsupportedJwtException e) {
-            logger.error("JWT token is unsupported: {}", e.getMessage());
+            log.info("지원되지 않는 JWT 토큰입니다.");
         } catch (IllegalArgumentException e) {
-            logger.error("JWT claims string is empty: {}", e.getMessage());
+            log.info("JWT 토큰이 잘못되었습니다.");
         }
-
         return false;
     }
 

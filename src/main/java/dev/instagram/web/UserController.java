@@ -4,6 +4,7 @@ import dev.instagram.JWT.JwtTokenDto;
 import dev.instagram.JWT.JwtTokenProvider;
 import dev.instagram.domain.member.Member;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -20,6 +21,7 @@ import java.util.Objects;
 
 @RequiredArgsConstructor
 @Controller
+@Slf4j
 public class UserController {
     private final UserService userService;
 
@@ -34,8 +36,10 @@ public class UserController {
     @PostMapping("/login")
     public ResponseEntity<JwtTokenDto> Login(@RequestBody MemberLoginDto memberLoginDto) throws Exception {
 
+        Member loginMember = userService.login(memberLoginDto);
         UsernamePasswordAuthenticationToken authenticationToken =
-                new UsernamePasswordAuthenticationToken(memberLoginDto.getEmail(), memberLoginDto.getPassword());
+                new UsernamePasswordAuthenticationToken(loginMember.getUsername(), loginMember.getPassword());
+
 
         Authentication authentication = authenticationManagerBuilder.getObject().authenticate(authenticationToken);
         SecurityContextHolder.getContext().setAuthentication(authentication);
@@ -44,9 +48,6 @@ public class UserController {
 
         HttpHeaders httpHeaders = new HttpHeaders();
         httpHeaders.add("Authorization", "Bearer " + jwt);
-
-
-        Member loginMember = userService.login(memberLoginDto);
 
         return new ResponseEntity<>(new JwtTokenDto(jwt), httpHeaders, HttpStatus.OK);
     }
