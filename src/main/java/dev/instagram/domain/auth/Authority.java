@@ -1,4 +1,4 @@
-package dev.instagram.domain.member;
+package dev.instagram.domain.auth;
 
 import lombok.*;
 
@@ -14,5 +14,6 @@ import javax.persistence.Id;
 public class Authority {
 
     @Id
+    @Column(name = "authority_name")
     private String authorityName;
 }

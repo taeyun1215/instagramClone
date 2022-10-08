@@ -37,8 +37,9 @@ public class UserController {
     public ResponseEntity<JwtTokenDto> Login(@RequestBody MemberLoginDto memberLoginDto) throws Exception {
 
         Member loginMember = userService.login(memberLoginDto);
+
         UsernamePasswordAuthenticationToken authenticationToken =
-                new UsernamePasswordAuthenticationToken(loginMember.getUsername(), loginMember.getPassword());
+                new UsernamePasswordAuthenticationToken(memberLoginDto.getEmail(), memberLoginDto.getPassword());
 
 
         Authentication authentication = authenticationManagerBuilder.getObject().authenticate(authenticationToken);

@@ -1,8 +1,10 @@
 package dev.instagram.domain.member;
 
+import dev.instagram.domain.auth.Authority;
 import lombok.*;
 
 import javax.persistence.*;
+import java.net.URI;
 import java.util.Set;
 
 @Builder
@@ -12,8 +14,8 @@ import java.util.Set;
 @Setter
 @Getter
 public class Member {
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "member_id")
     private long id;
 
     private String email;
@@ -21,11 +23,15 @@ public class Member {
     private String phoneNumber;
     private String username;
 
-    @ManyToMany
+    @Column(name = "activated")
+    private boolean activated;
+
+    @ManyToMany(cascade=CascadeType.ALL)
     @JoinTable(
             name = "user_authority",
-            joinColumns = {@JoinColumn(name = "user_id", referencedColumnName = "user_id")},
+            joinColumns = {@JoinColumn(name = "member_id", referencedColumnName = "member_id")},
             inverseJoinColumns = {@JoinColumn(name = "authority_name", referencedColumnName = "authority_name")}
     )
     private Set<Authority> authorities;
+
 }

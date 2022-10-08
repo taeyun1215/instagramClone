@@ -12,7 +12,6 @@ import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.stereotype.Component;
 
-import java.security.Key;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Date;
@@ -24,14 +23,7 @@ public class JwtTokenProvider {
 
     private static final String AUTHORITIES_KEY = "auth";
     private String SECRET_KEY = "secret";
-    private final long tokenValidityInMilliseconds;
-    private Key key;
-
-    public JwtTokenProvider(
-            @Value("${jwt.token-validity-in-seconds}") long tokenValidityInSeconds
-    ) {
-        this.tokenValidityInMilliseconds = tokenValidityInSeconds * 1000;
-    }
+    private final long tokenValidityInMilliseconds = 86400 * 1000;
 
     public String createToken(Authentication authentication) {
         String authorities = authentication.getAuthorities().stream()
