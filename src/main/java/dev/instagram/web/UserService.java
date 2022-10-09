@@ -10,14 +10,11 @@ import org.springframework.transaction.annotation.Transactional;
 @RequiredArgsConstructor
 @Service
 public class UserService {
-    private final PasswordEncoder passwordEncoder;
     private final MemberService memberService;
 
     @Transactional
     public Member signup(MemberSignupDto memberSignupDto) throws Exception {
-        Member member = memberSignupDto.toEntity(passwordEncoder);
-        Member memberEntity = memberService.registerMember(member);
-
+        Member memberEntity = memberService.registerMember(memberSignupDto);
         return memberEntity;
     }
 

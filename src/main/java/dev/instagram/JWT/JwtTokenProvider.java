@@ -22,7 +22,7 @@ import java.util.stream.Collectors;
 public class JwtTokenProvider {
 
     private static final String AUTHORITIES_KEY = "auth";
-    private String SECRET_KEY = "secret";
+    private String SECRET_KEY = "c47f6a1ec34d78aea55f265d8a2a38ea22d6415540673aa32d7e43cf3a147ff5a54198560e0593a85613b017bffa7b8f003761106f558822deca38dfc491533e";
     private final long tokenValidityInMilliseconds = 86400 * 1000;
 
     public String createToken(Authentication authentication) {

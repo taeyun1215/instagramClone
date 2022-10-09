@@ -11,6 +11,7 @@ import javax.persistence.Id;
 @Entity
 @Setter
 @Getter
+@Builder
 public class Authority {
 
     @Id
