@@ -1,6 +1,5 @@
 package dev.instagram.domain.member;
 
-import dev.instagram.JWT.JwtTokenProvider;
 import dev.instagram.domain.auth.Authority;
 import dev.instagram.util.SecurityUtil;
 import dev.instagram.web.MemberLoginDto;
@@ -60,12 +59,12 @@ public class MemberService {
     }
 
     @Transactional(readOnly = true)
-    public Optional<Member> getUserWithAuthorities(String email) {
-        return memberRepository.findOneWithAuthoritiesByEmail(email);
+    public Optional<Member> getMemberWithAuthorities() {
+        return SecurityUtil.getCurrentUsername().flatMap(memberRepository::findOneWithAuthoritiesByEmail);
     }
 
     @Transactional(readOnly = true)
-    public Optional<Member> getUserWithAuthorities() {
-        return SecurityUtil.getCurrentUsername().flatMap(memberRepository::findOneWithAuthoritiesByEmail);
+    public Optional<Member> getMemberWithAuthorities(String email) {
+        return memberRepository.findOneWithAuthoritiesByEmail(email);
     }
 }

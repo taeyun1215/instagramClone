@@ -8,29 +8,36 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 
+import javax.mail.MessagingException;
+import javax.servlet.http.HttpServletRequest;
+import java.io.UnsupportedEncodingException;
 import java.util.Objects;
+import java.util.Optional;
 
 @RequiredArgsConstructor
 @Controller
 @Slf4j
 public class UserController {
     private final UserService userService;
-
     private final JwtTokenProvider jwtTokenProvider;
     private final AuthenticationManagerBuilder authenticationManagerBuilder;
 
+    private final EmailService emailService;
+
     @GetMapping("/login")
-    public String LoginForm() {
-        return "login";
+    public ResponseEntity<?> LoginForm() {
+        return ResponseEntity.ok(HttpStatus.OK);
     }
 
     @PostMapping("/login")
@@ -59,13 +66,29 @@ public class UserController {
     }
 
     @PostMapping("/signup")
-    public String Signup(@RequestBody MemberSignupDto memberSignUpDto) throws Exception {
+    public ResponseEntity<Member> Signup(@RequestBody MemberSignupDto memberSignUpDto) throws Exception {
         if (!Objects.equals(memberSignUpDto.getPassword1(), memberSignUpDto.getPassword2())) {
             throw new Exception("비밀번호와 비밀번호 확인이 같지 않습니다.");
         }
+        return ResponseEntity.ok(userService.signup(memberSignUpDto));
+    }
 
-        userService.signup(memberSignUpDto);
-        return "login";
+    @GetMapping("/member")
+    @PreAuthorize("hasAnyRole('USER','ADMIN')")
+    public ResponseEntity<Optional<Member>> getMyUserInfo(HttpServletRequest request) {
+        return ResponseEntity.ok(userService.getMemberWithAuthorities());
+    }
+
+    @GetMapping("/member/{email}")
+    @PreAuthorize("hasAnyRole('ADMIN')")
+    public ResponseEntity<Optional<Member>> getUserInfo(@PathVariable String email) {
+        return ResponseEntity.ok(userService.getMemberWithAuthorities(email));
+    }
+
+    @PostMapping("login/mailConfirm")
+    public String mailConfirm(@RequestBody EmailRequestDto emailDto) throws MessagingException, UnsupportedEncodingException {
+        String authCode = emailService.sendEmail(emailDto.getEmail());
+        return authCode;
     }
 
 }

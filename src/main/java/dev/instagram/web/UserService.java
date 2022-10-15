@@ -7,21 +7,34 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.Optional;
+
 @RequiredArgsConstructor
 @Service
 public class UserService {
-    private final MemberService memberService;
+        private final MemberService memberService;
 
-    @Transactional
-    public Member signup(MemberSignupDto memberSignupDto) throws Exception {
-        Member memberEntity = memberService.registerMember(memberSignupDto);
-        return memberEntity;
-    }
+        @Transactional
+        public Member signup(MemberSignupDto memberSignupDto) throws Exception {
+            Member memberEntity = memberService.registerMember(memberSignupDto);
+            return memberEntity;
+        }
 
-    @Transactional
-    public Member login(MemberLoginDto memberLoginDto) throws Exception {
-        Member member = memberService.LoginMember(memberLoginDto);
-        return member;
-    }
+        @Transactional
+        public Member login(MemberLoginDto memberLoginDto) throws Exception {
+            Member member = memberService.LoginMember(memberLoginDto);
+            return member;
+        }
 
+        @Transactional
+        public Optional<Member> getMemberWithAuthorities() {
+            Optional<Member> member = memberService.getMemberWithAuthorities();
+            return member;
+        }
+
+        @Transactional
+        public Optional<Member> getMemberWithAuthorities(String email) {
+            Optional<Member> member = memberService.getMemberWithAuthorities(email);
+            return member;
+        }
 }
