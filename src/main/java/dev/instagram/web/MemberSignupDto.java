@@ -14,16 +14,18 @@ import java.util.Collections;
 @Setter
 @Data
 public class MemberSignupDto {
-    private String email;
+    private String memberId;
     private String password1;
     private String password2;
+    private String email;
     private String phoneNumber;
     private String username;
 
     public Member toEntity(PasswordEncoder passwordEncoder, Authority authority) {
         return Member.builder()
-                .email(email)
+                .memberId(memberId)
                 .password(passwordEncoder.encode(password1))
+                .email(email)
                 .phoneNumber(phoneNumber)
                 .username(username)
                 .activated(true)

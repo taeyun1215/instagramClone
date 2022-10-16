@@ -34,8 +34,8 @@ public class MemberService {
     }
 
     public MemberSignupDto validateDuplicatedMember(MemberSignupDto memberSignupDto) throws Exception {
-        boolean checkEmail = memberRepository.existsByEmail(memberSignupDto.getEmail());
-        if (checkEmail) {
+        boolean checkId = memberRepository.existsByMemberId(memberSignupDto.getMemberId());
+        if (checkId) {
             throw new Exception("중복된 아이디입니다.");
         }
         return memberSignupDto;
@@ -48,7 +48,7 @@ public class MemberService {
     }
 
     public Member validateLoginMember(MemberLoginDto memberLoginDto) throws Exception {
-        Member member = memberRepository.findByEmail(memberLoginDto.getEmail());
+        Member member = memberRepository.findByMemberId(memberLoginDto.getMemberId());
         if (member == null) {
             throw new Exception("해당하는 아이디가 없습니다.");
         }
@@ -60,11 +60,11 @@ public class MemberService {
 
     @Transactional(readOnly = true)
     public Optional<Member> getMemberWithAuthorities() {
-        return SecurityUtil.getCurrentUsername().flatMap(memberRepository::findOneWithAuthoritiesByEmail);
+        return SecurityUtil.getCurrentUsername().flatMap(memberRepository::findOneWithAuthoritiesByMemberId);
     }
 
     @Transactional(readOnly = true)
-    public Optional<Member> getMemberWithAuthorities(String email) {
-        return memberRepository.findOneWithAuthoritiesByEmail(email);
+    public Optional<Member> getMemberWithAuthorities(String memberId) {
+        return memberRepository.findOneWithAuthoritiesByMemberId(memberId);
     }
 }

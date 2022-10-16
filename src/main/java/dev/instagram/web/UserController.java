@@ -45,11 +45,10 @@ public class UserController {
     @PostMapping("/login")
     public ResponseEntity<JwtTokenDto> Login(@RequestBody MemberLoginDto memberLoginDto) throws Exception {
 
-        Member loginMember = userService.login(memberLoginDto);
+//        Member loginMember = userService.login(memberLoginDto);
 
         UsernamePasswordAuthenticationToken authenticationToken =
-                new UsernamePasswordAuthenticationToken(memberLoginDto.getEmail(), memberLoginDto.getPassword());
-
+                new UsernamePasswordAuthenticationToken(memberLoginDto.getMemberId(), memberLoginDto.getPassword());
 
         Authentication authentication = authenticationManagerBuilder.getObject().authenticate(authenticationToken);
         SecurityContextHolder.getContext().setAuthentication(authentication);
