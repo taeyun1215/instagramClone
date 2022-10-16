@@ -41,7 +41,7 @@ public class SecurityConfig {
                 .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
             .and()
                 .authorizeRequests()
-                    .antMatchers("/", "/login", "/signup", "/style/**", "/js/**", "/img/**").permitAll()
+                    .antMatchers("/", "/api/**", "/style/**", "/js/**", "/img/**").permitAll()
                     .anyRequest().authenticated()
             .and()
                 .formLogin()

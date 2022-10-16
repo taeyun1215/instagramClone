@@ -49,7 +49,7 @@ public class EmailService {
     public MimeMessage createEmailForm(String email) throws MessagingException, UnsupportedEncodingException {
 
         createCode(); // 인증 코드 생성
-        String setFrom = "tylee@goldenplanet.co.kr"; // email-config에 설정한 자신의 이메일 주소(보내는 사람)
+        String setFrom = "zinuk501@gmail.com"; // email-config에 설정한 자신의 이메일 주소(보내는 사람)
         String toEmail = email; // 받는 사람
         String title = "CODEBOX 회원가입 인증 번호"; // 제목
 
@@ -65,12 +65,11 @@ public class EmailService {
     // 실제 메일 전송
     public String sendEmail(String toEmail) throws MessagingException, UnsupportedEncodingException {
 
-        //메일전송에 필요한 정보 설정
+        // 메일전송에 필요한 정보 설정
         MimeMessage emailForm = createEmailForm(toEmail);
-        //실제 메일 전송
-        emailSender.send(emailForm);
-
-        return authNum; //인증 코드 반환
+        // 실제 메일 전송
+        emailSender.send(emailForm); // error
+        return authNum; // 인증 코드 반환
     }
 
     // 타임리프를 이용한 context 설정
