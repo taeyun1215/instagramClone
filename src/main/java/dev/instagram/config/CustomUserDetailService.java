@@ -3,7 +3,6 @@ package dev.instagram.config;
 import dev.instagram.domain.member.Member;
 import dev.instagram.domain.member.MemberRepository;
 import lombok.RequiredArgsConstructor;
-import org.springframework.context.annotation.Bean;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -36,8 +35,10 @@ public class CustomUserDetailService implements UserDetailsService {
                 .map(authority -> new SimpleGrantedAuthority(authority.getAuthorityName()))
                 .collect(Collectors.toList());
 
-        return new org.springframework.security.core.userdetails.User(member.getEmail(),
+        return new org.springframework.security.core.userdetails.User(
+                member.getEmail(),
                 member.getPassword(),
-                grantedAuthorities);
+                grantedAuthorities
+        );
     }
 }
