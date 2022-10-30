@@ -2,6 +2,7 @@ package dev.instagram.domain.member;
 
 import dev.instagram.domain.auth.Authority;
 import lombok.*;
+import org.hibernate.annotations.DynamicUpdate;
 
 import javax.persistence.*;
 import java.util.Set;
@@ -12,6 +13,7 @@ import java.util.Set;
 @Entity
 @Setter
 @Getter
+@DynamicUpdate // 특정 컬럼만 업데이트 해주기 위함.
 public class Member {
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id")
@@ -22,6 +24,9 @@ public class Member {
     private String email;
     private String phoneNumber;
     private String username;
+
+    @Column(name = "auth_email")
+    private String authEmail;
 
     @Column(name = "activated")
     private boolean activated;

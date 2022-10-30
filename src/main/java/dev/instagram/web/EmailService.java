@@ -1,5 +1,7 @@
 package dev.instagram.web;
 
+import dev.instagram.domain.member.Member;
+import dev.instagram.domain.member.MemberRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.stereotype.Service;
@@ -21,6 +23,8 @@ public class EmailService {
     private final SpringTemplateEngine templateEngine;
     // 랜덤 인증 코드
     private String authNum;
+    // 해당 이메일이 있는지 확인용
+    private final MemberRepository memberRepository;
 
     // 랜덤 인증 코드 생성
     public void createCode() {
@@ -63,13 +67,19 @@ public class EmailService {
     }
 
     // 실제 메일 전송
-    public String sendEmail(String toEmail) throws MessagingException, UnsupportedEncodingException {
+    public String sendEmail(String toEmail) throws Exception, MessagingException, UnsupportedEncodingException {
 
-        // 메일전송에 필요한 정보 설정
-        MimeMessage emailForm = createEmailForm(toEmail);
-        // 실제 메일 전송
-        emailSender.send(emailForm); // error
-        return authNum; // 인증 코드 반환
+        Member findMember = memberRepository.findByEmail(toEmail);
+
+        if (findMember == null) {
+            throw new Exception("입력하신 이메일은 없습니다.");
+        } else {
+            // 메일전송에 필요한 정보 설정
+            MimeMessage emailForm = createEmailForm(toEmail);
+            // 실제 메일 전송
+            emailSender.send(emailForm); // error
+            return authNum; // 인증 코드 반환
+        }
     }
 
     // 타임리프를 이용한 context 설정

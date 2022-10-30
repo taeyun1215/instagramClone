@@ -67,4 +67,25 @@ public class MemberService {
     public Optional<Member> getMemberWithAuthorities(String memberId) {
         return memberRepository.findOneWithAuthoritiesByMemberId(memberId);
     }
+
+    @Transactional(readOnly = true)
+    public Member saveAuthEmail(String authCode, String email) {
+        Member findMember = memberRepository.findByEmail(email);
+        findMember.setAuthEmail(authCode);
+
+        return memberRepository.save(findMember);
+    }
+
+    @Transactional(readOnly = true)
+    public Member findId(String authCode, String memberEmail) throws Exception {
+        Member findMember = memberRepository.findByEmailandAuthEmail(authCode, memberEmail);
+
+        if (findMember == null) {
+            throw new Exception("이메일 인증번호를 틀렸습니다.");
+        }
+
+        return findMember;
+    }
+
+
 }

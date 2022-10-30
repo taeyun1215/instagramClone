@@ -5,6 +5,7 @@ import dev.instagram.JWT.JwtTokenProvider;
 import dev.instagram.domain.member.Member;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import net.nurigo.java_sdk.exceptions.CoolsmsException;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -14,11 +15,7 @@ import org.springframework.security.config.annotation.authentication.builders.Au
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.*;
 
 import javax.mail.MessagingException;
 import javax.servlet.http.HttpServletRequest;
@@ -36,6 +33,7 @@ public class UserController {
     private final AuthenticationManagerBuilder authenticationManagerBuilder;
 
     private final EmailService emailService;
+    private final PhoneNumberCheckService phoneNumberCheckService;
 
     @GetMapping("/login")
     public ResponseEntity<?> LoginForm() {
@@ -86,10 +84,31 @@ public class UserController {
         return ResponseEntity.ok(userService.getMemberWithAuthorities(email));
     }
 
-    @PostMapping("login/mailConfirm")
-    public String mailConfirm(@RequestBody EmailRequestDto emailDto) throws MessagingException, UnsupportedEncodingException {
+    @PostMapping("forget/id")
+    public ResponseEntity<Member> forgetId(@RequestBody EmailRequestDto emailDto) throws Exception, MessagingException, UnsupportedEncodingException {
         String authCode = emailService.sendEmail(emailDto.getEmail());
-        return authCode;
+        return ResponseEntity.ok(userService.saveAuthEmail(authCode, emailDto.getEmail()));
+    }
+
+    @PostMapping("forget/idConfirm")
+    public ResponseEntity<String> forgetIdConfirm(@RequestBody String authCode, @RequestBody String memberEmail) throws Exception{
+        return ResponseEntity.ok(userService.findId(authCode, memberEmail));
+    }
+
+    @PostMapping("forget/password")
+    public String forgetPassword(@RequestBody ) {
+
+    }
+
+    @PostMapping("forget/passwordConfirm")
+    public String forgetPasswordConfirm(@RequestBody ) {
+
+    }
+
+    // coolSMS 구현 로직 연결
+    @GetMapping("/check/SMS")
+    public @ResponseBody String sendSMS(@RequestBody String to) throws CoolsmsException {
+        return phoneNumberCheckService.PhoneNumberCheck(to);
     }
 
 }
